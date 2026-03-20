@@ -92,6 +92,32 @@ Respond in this exact format (comma-separated story numbers only):
             print(f"Error ranking stories: {e}")
             return {cat: stories[:num_per_category] for cat, stories in all_stories.items()}
 
+    def generate_subject_line(self, summarized: Dict[str, List[Dict]]) -> str:
+        """Generate a punchy subject line from the two most important story titles."""
+        top_titles = []
+        for cat in ['ai', 'finance', 'industry', 'marketing']:
+            if cat in summarized and summarized[cat]:
+                top_titles.append(summarized[cat][0]['title'])
+            if len(top_titles) == 2:
+                break
+
+        if not top_titles:
+            return ""
+
+        titles_text = "\n".join(top_titles)
+        prompt = f"""Create a punchy email subject line for a daily news digest. Compress the 2 headlines below into ~5 words each, joined with " + ". No date. No quotes.
+
+Headlines:
+{titles_text}
+
+Write only the subject line. Example: "OpenAI releases agents SDK + Fed holds rates steady" """
+
+        try:
+            return self._create_message_with_retry(prompt, max_tokens=60).strip().strip('"')
+        except Exception as e:
+            print(f"Error generating subject line: {e}")
+            return ""
+
     def generate_daily_brief(self, summarized: Dict[str, List[Dict]]) -> str:
         """Generate a 2-sentence overview of the day's most important themes."""
         all_titles = []

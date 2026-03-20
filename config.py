@@ -12,8 +12,8 @@ GMAIL_USER = os.getenv('GMAIL_USER')
 GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
 RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
 
-# News Settings — total stories across all categories (3 per category default)
-NUM_STORIES = int(os.getenv('NUM_STORIES', 12))
+# News Settings — total stories across all categories (2 per category default)
+NUM_STORIES = int(os.getenv('NUM_STORIES', 8))
 
 # Category display configuration
 CATEGORY_CONFIG = {

@@ -125,9 +125,11 @@ def main():
             summarized[cat] = summarizer.summarize_stories(selected_stories[cat], fetcher)
             print(f"✓ Completed {len(summarized[cat])} {cat} summaries")
 
-        print("\nGenerating daily brief...")
+        print("\nGenerating daily brief and subject line...")
         daily_brief = summarizer.generate_daily_brief(summarized)
-        print("✓ Daily brief generated")
+        subject_line = summarizer.generate_subject_line(summarized)
+        print(f"✓ Daily brief generated")
+        print(f"✓ Subject: {subject_line}")
 
         # Format email
         print("\n" + "-" * 60)
@@ -141,7 +143,7 @@ def main():
         print("\n" + "-" * 60)
         print("STEP 5: Sending email...")
         print("-" * 60)
-        success = sender.send_digest(config.RECIPIENT_EMAIL, html_content, plain_text)
+        success = sender.send_digest(config.RECIPIENT_EMAIL, html_content, plain_text, subject_line)
 
         print("\n" + "=" * 60)
         if success:

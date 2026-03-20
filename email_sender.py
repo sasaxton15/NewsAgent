@@ -52,20 +52,11 @@ class EmailSender:
                 print(f"ERROR: Failed to send email: {e}")
                 return False
 
-    def send_digest(self, recipient: str, html_content: str, plain_text: str) -> bool:
-        """
-        Send the news digest email.
-
-        Args:
-            recipient: Email address to send to
-            html_content: HTML formatted email content
-            plain_text: Plain text fallback content
-
-        Returns:
-            bool: True if sent successfully, False otherwise
-        """
+    def send_digest(self, recipient: str, html_content: str, plain_text: str, subject: str = "") -> bool:
+        """Send the news digest email."""
         today = datetime.now().strftime("%B %d, %Y")
-        subject = f"Your Daily News Digest - {today}"
+        if not subject:
+            subject = f"The Brief \u2014 {today}"
 
         return self._send_email(recipient, subject, plain_text, html_content)
 

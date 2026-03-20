@@ -5,19 +5,15 @@ from typing import Dict, List
 
 
 class EmailFormatter:
-    """Formats news stories into a clean newsletter-style HTML email."""
+    """Formats news stories into a TLDR-inspired newsletter email."""
 
     @staticmethod
-    def _format_summary_html(summary: str) -> str:
-        """Style the 'Why it matters:' portion of a summary differently."""
+    def _split_summary(summary: str):
+        """Split summary into facts and 'Why it matters' parts."""
         parts = re.split(r'(Why it matters:)', summary, flags=re.IGNORECASE, maxsplit=1)
         if len(parts) == 3:
-            return (
-                f'<span style="color: #2d3436;">{parts[0]}</span>'
-                f'<span style="color: #636e72; font-style: italic;">'
-                f'<strong style="font-style: normal;">{parts[1]}</strong>{parts[2]}</span>'
-            )
-        return summary
+            return parts[0].strip(), parts[2].strip()
+        return summary.strip(), None
 
     @staticmethod
     def format_digest(
@@ -33,135 +29,162 @@ class EmailFormatter:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #2d3436;
-            max-width: 620px;
-            margin: 0 auto;
-            padding: 20px;
             background-color: #f0f2f5;
+            color: #1a1a1a;
+            padding: 24px 16px;
         }}
         .container {{
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            background: #ffffff;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+            overflow: hidden;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.07);
         }}
         .header {{
-            border-bottom: 3px solid #2d3436;
-            padding-bottom: 20px;
-            margin-bottom: 28px;
+            padding: 32px 36px 24px;
+            border-bottom: 1px solid #ebebeb;
         }}
-        .newsletter-name {{
-            font-size: 11px;
-            font-weight: 700;
+        .masthead {{
+            font-size: 10px;
+            font-weight: 800;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: #b2bec3;
-            margin-bottom: 8px;
+            color: #aaa;
+            margin-bottom: 10px;
         }}
-        h1 {{
-            color: #2d3436;
-            margin: 0 0 4px 0;
-            font-size: 28px;
+        .headline {{
+            font-size: 26px;
             font-weight: 800;
+            color: #1a1a1a;
             letter-spacing: -0.5px;
+            margin-bottom: 4px;
         }}
-        .date {{
-            color: #b2bec3;
+        .dateline {{
             font-size: 13px;
-            font-weight: 500;
+            color: #aaa;
         }}
         .brief-box {{
-            background-color: #f8f9fa;
-            border-left: 4px solid #2d3436;
-            padding: 18px 22px;
-            margin-bottom: 36px;
+            margin: 24px 36px;
+            padding: 16px 20px;
+            background: #f7f7f7;
+            border-left: 3px solid #1a1a1a;
             border-radius: 0 6px 6px 0;
         }}
         .brief-label {{
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 2px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
-            color: #b2bec3;
-            margin-bottom: 10px;
+            color: #aaa;
+            margin-bottom: 8px;
         }}
         .brief-text {{
-            font-size: 15px;
-            color: #2d3436;
-            line-height: 1.7;
-            margin: 0;
+            font-size: 14px;
+            line-height: 1.65;
+            color: #333;
         }}
         .section {{
-            margin-bottom: 40px;
+            padding: 0 36px;
+            margin-bottom: 8px;
         }}
-        .section-header {{
-            padding-bottom: 12px;
-            margin-bottom: 20px;
+        .section-label {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 0 12px;
+            border-bottom: 2px solid #ebebeb;
+            margin-bottom: 4px;
         }}
-        .section-title {{
-            font-size: 17px;
+        .section-label-bar {{
+            display: inline-block;
+            width: 3px;
+            height: 16px;
+            border-radius: 2px;
+        }}
+        .section-label-text {{
+            font-size: 11px;
             font-weight: 800;
-            margin: 0;
-            letter-spacing: 0.3px;
-            color: #2d3436;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #555;
         }}
         .story {{
-            margin-bottom: 24px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid #f0f2f5;
+            padding: 18px 0;
+            border-bottom: 1px solid #f2f2f2;
         }}
         .story:last-child {{
             border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
         }}
-        .source-tag {{
-            display: inline-block;
+        .story-source {{
             font-size: 10px;
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
-            color: #b2bec3;
-            margin-bottom: 6px;
+            color: #bbb;
+            margin-bottom: 5px;
         }}
         .story-title {{
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             line-height: 1.4;
             margin-bottom: 8px;
         }}
         .story-title a {{
-            color: #2d3436;
+            color: #1a1a1a;
             text-decoration: none;
         }}
         .story-title a:hover {{
             text-decoration: underline;
         }}
-        .summary {{
-            font-size: 14px;
-            line-height: 1.75;
-            color: #636e72;
-            margin: 0;
+        .story-summary {{
+            font-size: 13px;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 10px;
+        }}
+        .why-it-matters {{
+            font-size: 13px;
+            line-height: 1.65;
+            color: #555;
+            border-left: 2px solid #ddd;
+            padding: 6px 12px;
+            margin-bottom: 10px;
+            font-style: italic;
+        }}
+        .why-label {{
+            font-style: normal;
+            font-weight: 700;
+            color: #888;
+        }}
+        .read-more {{
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            text-decoration: none;
+        }}
+        .read-more:hover {{
+            color: #333;
         }}
         .footer {{
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #f0f2f5;
+            padding: 24px 36px;
+            border-top: 1px solid #ebebeb;
             text-align: center;
-            color: #b2bec3;
-            font-size: 12px;
+            font-size: 11px;
+            color: #bbb;
         }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="newsletter-name">The Brief</div>
-            <h1>Your Daily Digest</h1>
-            <div class="date">{today}</div>
+            <div class="masthead">The Brief</div>
+            <div class="headline">Your Daily Digest</div>
+            <div class="dateline">{today}</div>
         </div>
 """
 
@@ -169,31 +192,41 @@ class EmailFormatter:
             html += f"""
         <div class="brief-box">
             <div class="brief-label">Today at a Glance</div>
-            <p class="brief-text">{daily_brief}</p>
+            <div class="brief-text">{daily_brief}</div>
         </div>
 """
 
         for cat, stories in summarized.items():
             if not stories:
                 continue
-            cfg = category_config.get(cat, {'label': cat.title(), 'emoji': '', 'color': '#2d3436'})
+            cfg = category_config.get(cat, {'label': cat.title(), 'emoji': '', 'color': '#888'})
             color = cfg['color']
 
             html += f"""
         <div class="section">
-            <div class="section-header" style="border-bottom: 3px solid {color};">
-                <h2 class="section-title">{cfg['emoji']} {cfg['label']}</h2>
+            <div class="section-label">
+                <span class="section-label-bar" style="background:{color};"></span>
+                <span class="section-label-text">{cfg['emoji']} {cfg['label']}</span>
             </div>
 """
             for story in stories:
-                formatted_summary = EmailFormatter._format_summary_html(story['summary'])
+                facts, why = EmailFormatter._split_summary(story['summary'])
+
+                why_block = ""
+                if why:
+                    why_block = f"""
+                <div class="why-it-matters">
+                    <span class="why-label">Why it matters:</span> {why}
+                </div>"""
+
                 html += f"""
             <div class="story">
-                <div class="source-tag">{story['source']}</div>
+                <div class="story-source">{story['source']}</div>
                 <div class="story-title">
                     <a href="{story['url']}" target="_blank">{story['title']}</a>
                 </div>
-                <p class="summary">{formatted_summary}</p>
+                <div class="story-summary">{facts}</div>{why_block}
+                <a class="read-more" href="{story['url']}" target="_blank">Read more &rarr;</a>
             </div>"""
 
             html += "\n        </div>\n"
