@@ -1,20 +1,33 @@
 """Format news digest as HTML email."""
+import re
 from datetime import datetime
-from typing import List, Dict
+from typing import Dict, List
 
 
 class EmailFormatter:
-    """Formats news stories into a clean HTML email."""
+    """Formats news stories into a clean newsletter-style HTML email."""
 
     @staticmethod
-    def format_digest(tech_stories: List[Dict], finance_stories: List[Dict]) -> str:
-        """
-        Create a beautifully formatted HTML email digest.
-        """
+    def _format_summary_html(summary: str) -> str:
+        """Style the 'Why it matters:' portion of a summary differently."""
+        parts = re.split(r'(Why it matters:)', summary, flags=re.IGNORECASE, maxsplit=1)
+        if len(parts) == 3:
+            return (
+                f'<span style="color: #2d3436;">{parts[0]}</span>'
+                f'<span style="color: #636e72; font-style: italic;">'
+                f'<strong style="font-style: normal;">{parts[1]}</strong>{parts[2]}</span>'
+            )
+        return summary
+
+    @staticmethod
+    def format_digest(
+        summarized: Dict[str, List[Dict]],
+        daily_brief: str,
+        category_config: dict,
+    ) -> str:
         today = datetime.now().strftime("%B %d, %Y")
 
-        html = f"""
-<!DOCTYPE html>
+        html = f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -23,169 +36,197 @@ class EmailFormatter:
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
-            color: #333;
-            max-width: 600px;
+            color: #2d3436;
+            max-width: 620px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #f0f2f5;
         }}
         .container {{
-            background-color: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
         }}
         .header {{
-            border-bottom: 3px solid #2c3e50;
+            border-bottom: 3px solid #2d3436;
             padding-bottom: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
+        }}
+        .newsletter-name {{
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #b2bec3;
+            margin-bottom: 8px;
         }}
         h1 {{
-            color: #2c3e50;
-            margin: 0 0 5px 0;
+            color: #2d3436;
+            margin: 0 0 4px 0;
             font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }}
         .date {{
-            color: #7f8c8d;
-            font-size: 14px;
+            color: #b2bec3;
+            font-size: 13px;
+            font-weight: 500;
+        }}
+        .brief-box {{
+            background-color: #f8f9fa;
+            border-left: 4px solid #2d3436;
+            padding: 18px 22px;
+            margin-bottom: 36px;
+            border-radius: 0 6px 6px 0;
+        }}
+        .brief-label {{
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #b2bec3;
+            margin-bottom: 10px;
+        }}
+        .brief-text {{
+            font-size: 15px;
+            color: #2d3436;
+            line-height: 1.7;
+            margin: 0;
         }}
         .section {{
             margin-bottom: 40px;
         }}
-        .section-title {{
-            color: #2c3e50;
-            font-size: 22px;
+        .section-header {{
+            padding-bottom: 12px;
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #3498db;
+        }}
+        .section-title {{
+            font-size: 17px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 0.3px;
+            color: #2d3436;
         }}
         .story {{
-            margin-bottom: 25px;
-            padding-bottom: 25px;
-            border-bottom: 1px solid #ecf0f1;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f0f2f5;
         }}
         .story:last-child {{
             border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }}
+        .source-tag {{
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #b2bec3;
+            margin-bottom: 6px;
         }}
         .story-title {{
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.4;
             margin-bottom: 8px;
         }}
         .story-title a {{
-            color: #2c3e50;
+            color: #2d3436;
             text-decoration: none;
         }}
         .story-title a:hover {{
-            color: #3498db;
-        }}
-        .source {{
-            color: #7f8c8d;
-            font-size: 13px;
-            margin-bottom: 10px;
+            text-decoration: underline;
         }}
         .summary {{
-            color: #555;
-            font-size: 15px;
-            line-height: 1.6;
+            font-size: 14px;
+            line-height: 1.75;
+            color: #636e72;
+            margin: 0;
         }}
         .footer {{
             margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid #ecf0f1;
+            border-top: 1px solid #f0f2f5;
             text-align: center;
-            color: #95a5a6;
-            font-size: 13px;
+            color: #b2bec3;
+            font-size: 12px;
         }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📰 Daily News Digest</h1>
+            <div class="newsletter-name">The Brief</div>
+            <h1>Your Daily Digest</h1>
             <div class="date">{today}</div>
         </div>
 """
 
-        # Tech section
-        if tech_stories:
-            html += """
-        <div class="section">
-            <h2 class="section-title">💻 Technology</h2>
-"""
-            for story in tech_stories:
-                html += f"""
-            <div class="story">
-                <div class="story-title">
-                    <a href="{story['url']}" target="_blank">{story['title']}</a>
-                </div>
-                <div class="source">Source: {story['source']}</div>
-                <div class="summary">{story['summary']}</div>
-            </div>
-"""
-            html += """
+        if daily_brief:
+            html += f"""
+        <div class="brief-box">
+            <div class="brief-label">Today at a Glance</div>
+            <p class="brief-text">{daily_brief}</p>
         </div>
 """
 
-        # Finance section
-        if finance_stories:
-            html += """
+        for cat, stories in summarized.items():
+            if not stories:
+                continue
+            cfg = category_config.get(cat, {'label': cat.title(), 'emoji': '', 'color': '#2d3436'})
+            color = cfg['color']
+
+            html += f"""
         <div class="section">
-            <h2 class="section-title">💰 Finance & Business</h2>
+            <div class="section-header" style="border-bottom: 3px solid {color};">
+                <h2 class="section-title">{cfg['emoji']} {cfg['label']}</h2>
+            </div>
 """
-            for story in finance_stories:
+            for story in stories:
+                formatted_summary = EmailFormatter._format_summary_html(story['summary'])
                 html += f"""
             <div class="story">
+                <div class="source-tag">{story['source']}</div>
                 <div class="story-title">
                     <a href="{story['url']}" target="_blank">{story['title']}</a>
                 </div>
-                <div class="source">Source: {story['source']}</div>
-                <div class="summary">{story['summary']}</div>
-            </div>
-"""
-            html += """
-        </div>
-"""
+                <p class="summary">{formatted_summary}</p>
+            </div>"""
+
+            html += "\n        </div>\n"
 
         html += """
         <div class="footer">
-            Powered by NewsAgent | Daily automated digest
+            The Brief &mdash; Powered by NewsAgent &amp; Claude AI
         </div>
     </div>
 </body>
-</html>
-"""
+</html>"""
+
         return html
 
     @staticmethod
-    def format_plain_text(tech_stories: List[Dict], finance_stories: List[Dict]) -> str:
-        """
-        Create a plain text version of the digest as fallback.
-        """
+    def format_plain_text(summarized: Dict[str, List[Dict]], category_config: dict) -> str:
         today = datetime.now().strftime("%B %d, %Y")
-
-        text = f"DAILY NEWS DIGEST - {today}\n"
+        text = f"THE BRIEF -- YOUR DAILY DIGEST\n{today}\n"
         text += "=" * 60 + "\n\n"
 
-        if tech_stories:
-            text += "TECHNOLOGY\n"
+        for cat, stories in summarized.items():
+            if not stories:
+                continue
+            cfg = category_config.get(cat, {'label': cat.title(), 'emoji': ''})
+            text += f"{cfg['emoji']} {cfg['label'].upper()}\n"
             text += "-" * 60 + "\n\n"
-            for i, story in enumerate(tech_stories, 1):
+            for i, story in enumerate(stories, 1):
                 text += f"{i}. {story['title']}\n"
                 text += f"   Source: {story['source']}\n"
                 text += f"   {story['summary']}\n"
                 text += f"   Read more: {story['url']}\n\n"
+            text += "\n"
 
-        if finance_stories:
-            text += "\nFINANCE & BUSINESS\n"
-            text += "-" * 60 + "\n\n"
-            for i, story in enumerate(finance_stories, 1):
-                text += f"{i}. {story['title']}\n"
-                text += f"   Source: {story['source']}\n"
-                text += f"   {story['summary']}\n"
-                text += f"   Read more: {story['url']}\n\n"
-
-        text += "\n" + "=" * 60 + "\n"
-        text += "Powered by NewsAgent | Daily automated digest\n"
-
+        text += "=" * 60 + "\n"
+        text += "The Brief -- Powered by NewsAgent & Claude AI\n"
         return text

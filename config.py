@@ -2,7 +2,6 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 # API Keys
@@ -13,66 +12,125 @@ GMAIL_USER = os.getenv('GMAIL_USER')
 GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
 RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
 
-# News Settings
-NUM_STORIES = int(os.getenv('NUM_STORIES', 6))
+# News Settings — total stories across all categories (3 per category default)
+NUM_STORIES = int(os.getenv('NUM_STORIES', 12))
+
+# Category display configuration
+CATEGORY_CONFIG = {
+    'ai': {
+        'label': 'AI & Technology',
+        'emoji': '\U0001f916',
+        'color': '#6c5ce7',
+    },
+    'finance': {
+        'label': 'Finance & Markets',
+        'emoji': '\U0001f4b0',
+        'color': '#00b894',
+    },
+    'industry': {
+        'label': 'Industry & Business',
+        'emoji': '\U0001f3e2',
+        'color': '#0984e3',
+    },
+    'marketing': {
+        'label': 'Marketing',
+        'emoji': '\U0001f4e3',
+        'color': '#e17055',
+    },
+}
 
 # News Sources Configuration
 NEWS_SOURCES = {
-    'tech': [
+    'ai': [
         {
             'name': 'Hacker News',
             'type': 'api',
-            'url': 'https://hacker-news.firebaseio.com/v0/topstories.json'
+            'url': 'https://hacker-news.firebaseio.com/v0/topstories.json',
         },
         {
-            'name': 'TechCrunch',
+            'name': 'The Rundown AI',
             'type': 'rss',
-            'url': 'https://techcrunch.com/feed/'
+            'url': 'https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml',
         },
         {
-            'name': 'The Verge',
+            'name': 'Hugging Face Blog',
             'type': 'rss',
-            'url': 'https://www.theverge.com/rss/index.xml'
+            'url': 'https://huggingface.co/blog/feed.xml',
         },
         {
-            'name': 'Wired',
+            'name': 'VentureBeat',
             'type': 'rss',
-            'url': 'https://www.wired.com/feed/rss'
+            'url': 'https://venturebeat.com/feed',
         },
         {
-            'name': 'Ars Technica',
+            'name': 'MIT Technology Review',
             'type': 'rss',
-            'url': 'https://feeds.arstechnica.com/arstechnica/index'
-        }
+            'url': 'https://www.technologyreview.com/feed/',
+        },
+        {
+            'name': 'The New Stack',
+            'type': 'rss',
+            'url': 'https://thenewstack.io/feed/',
+        },
     ],
     'finance': [
         {
             'name': 'Reuters Business',
             'type': 'rss',
-            'url': 'https://feeds.reuters.com/reuters/businessNews'
-        },
-        {
-            'name': 'Financial Times',
-            'type': 'rss',
-            'url': 'https://www.ft.com/?format=rss'
+            'url': 'https://feeds.reuters.com/reuters/businessNews',
         },
         {
             'name': 'Yahoo Finance',
             'type': 'rss',
-            'url': 'https://finance.yahoo.com/news/rssindex'
+            'url': 'https://finance.yahoo.com/news/rssindex',
         },
         {
             'name': 'CNBC',
             'type': 'rss',
-            'url': 'https://www.cnbc.com/id/100003114/device/rss/rss.html'
+            'url': 'https://www.cnbc.com/id/100003114/device/rss/rss.html',
         },
         {
             'name': 'Bloomberg Markets',
             'type': 'rss',
-            'url': 'https://feeds.bloomberg.com/markets/news.rss'
-        }
-    ]
+            'url': 'https://feeds.bloomberg.com/markets/news.rss',
+        },
+    ],
+    'industry': [
+        {
+            'name': 'Harvard Business Review',
+            'type': 'rss',
+            'url': 'https://feeds.hbr.org/harvardbusiness',
+        },
+        {
+            'name': 'Fortune',
+            'type': 'rss',
+            'url': 'https://fortune.com/feed/',
+        },
+        {
+            'name': 'Fast Company',
+            'type': 'rss',
+            'url': 'https://www.fastcompany.com/latest/rss',
+        },
+    ],
+    'marketing': [
+        {
+            'name': 'Digiday',
+            'type': 'rss',
+            'url': 'https://digiday.com/feed/',
+        },
+        {
+            'name': 'Adweek',
+            'type': 'rss',
+            'url': 'https://www.adweek.com/feed/',
+        },
+        {
+            'name': 'Marketing Week',
+            'type': 'rss',
+            'url': 'https://www.marketingweek.com/feed/',
+        },
+    ],
 }
+
 
 def validate_config():
     """Validate that all required configuration is present."""

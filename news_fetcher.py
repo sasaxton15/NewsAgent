@@ -30,7 +30,6 @@ class NewsFetcher:
     def fetch_hacker_news(self, num_stories: int = 10) -> List[Dict]:
         """Fetch top stories from Hacker News API."""
         try:
-            # Get top story IDs
             response = self.session.get(
                 'https://hacker-news.firebaseio.com/v0/topstories.json',
                 timeout=10
@@ -93,33 +92,20 @@ class NewsFetcher:
 
     def fetch_all_news(self, sources: Dict, num_per_source: int = 10) -> Dict[str, List[Dict]]:
         """Fetch news from all configured sources."""
-        all_news = {
-            'tech': [],
-            'finance': []
-        }
+        all_news = {category: [] for category in sources}
 
-        # Fetch tech news
-        for source in sources.get('tech', []):
-            if source['type'] == 'api' and source['name'] == 'Hacker News':
-                stories = self.fetch_hacker_news(num_per_source)
-                all_news['tech'].extend(stories)
-            elif source['type'] == 'rss':
-                stories = self.fetch_rss_feed(
-                    source['url'],
-                    source['name'],
-                    num_per_source
-                )
-                all_news['tech'].extend(stories)
-
-        # Fetch finance news
-        for source in sources.get('finance', []):
-            if source['type'] == 'rss':
-                stories = self.fetch_rss_feed(
-                    source['url'],
-                    source['name'],
-                    num_per_source
-                )
-                all_news['finance'].extend(stories)
+        for category, source_list in sources.items():
+            for source in source_list:
+                if source['type'] == 'api' and source['name'] == 'Hacker News':
+                    stories = self.fetch_hacker_news(num_per_source)
+                    all_news[category].extend(stories)
+                elif source['type'] == 'rss':
+                    stories = self.fetch_rss_feed(
+                        source['url'],
+                        source['name'],
+                        num_per_source
+                    )
+                    all_news[category].extend(stories)
 
         return all_news
 
@@ -147,17 +133,13 @@ class NewsFetcher:
             from bs4 import BeautifulSoup
             soup = BeautifulSoup(response.content, 'lxml')
 
-            # Remove script and style elements
             for script in soup(["script", "style", "nav", "footer", "header"]):
                 script.decompose()
 
-            # Try to find main content
             main_content = soup.find('article') or soup.find('main') or soup.find('body')
 
             if main_content:
-                # Get text and clean it up
                 text = main_content.get_text(separator=' ', strip=True)
-                # Limit to first 2000 characters for summarization
                 return text[:2000]
 
             return ""

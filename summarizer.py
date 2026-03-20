@@ -19,7 +19,7 @@ class ArticleSummarizer:
         for attempt in range(1, self.max_retries + 1):
             try:
                 response = self.client.messages.create(
-                    model="claude-3-haiku-20240307",
+                    model="claude-haiku-4-5-20251001",
                     max_tokens=max_tokens,
                     messages=[{"role": "user", "content": prompt}],
                 )
@@ -31,95 +31,116 @@ class ArticleSummarizer:
                 print(f"Claude API transient error (attempt {attempt}/{self.max_retries}): {e}. Retrying in {wait_seconds}s...")
                 time.sleep(wait_seconds)
 
-    def rank_and_select_stories(self, tech_stories: List[Dict], finance_stories: List[Dict], num_stories: int) -> Dict[str, List[Dict]]:
-        """
-        Use Claude to rank stories by importance and select top N from each category.
-        """
-        tech_titles = "\n".join([f"{i+1}. {s['title']} (from {s['source']})"
-                                  for i, s in enumerate(tech_stories[:20])])
-        finance_titles = "\n".join([f"{i+1}. {s['title']} (from {s['source']})"
-                                     for i, s in enumerate(finance_stories[:20])])
+    def rank_and_select_stories(self, all_stories: Dict[str, List[Dict]], num_per_category: int) -> Dict[str, List[Dict]]:
+        """Use Claude to rank stories by importance and select top N from each category."""
+        category_priorities = {
+            'ai': 'Model releases, agent frameworks, AI product launches, developer tools, AI policy shifts',
+            'finance': 'Market-moving events, earnings surprises, interest rate changes, macro trends, personal finance insights',
+            'industry': 'Major business strategy shifts, executive moves, M&A, industry disruption, regulatory changes',
+            'marketing': 'Brand campaigns, platform algorithm changes, consumer behavior shifts, ad industry news, martech launches',
+        }
 
-        prompt = f"""You are a news curator. Review these tech and finance news stories and select the {num_stories//2} most important stories from each category.
+        sections = []
+        response_format_lines = []
+        for category, stories in all_stories.items():
+            if not stories:
+                continue
+            titles = "\n".join([
+                f"{i+1}. {s['title']} (from {s['source']})"
+                for i, s in enumerate(stories[:20])
+            ])
+            sections.append(f"{category.upper()} STORIES:\n{titles}")
+            response_format_lines.append(f"{category.upper()}: 1,2,3")
 
-TECH STORIES:
-{tech_titles}
+        priority_lines = "\n".join([
+            f"- {cat.upper()}: {desc}"
+            for cat, desc in category_priorities.items()
+            if cat in all_stories
+        ])
 
-FINANCE STORIES:
-{finance_titles}
+        prompt = f"""You are a news curator for a professional daily digest covering AI, finance, business, and marketing.
 
-Please respond with just the story numbers (comma-separated) for each category in this exact format:
-TECH: 1,3,5
-FINANCE: 2,4,7
+{chr(10).join(sections)}
 
-Select stories based on:
-- Significance and impact
-- Novelty and relevance
-- Broad interest
-- Major company/market news"""
+Select the {num_per_category} most important stories from each category.
+
+Prioritize by category:
+{priority_lines}
+
+Respond in this exact format (comma-separated story numbers only):
+{chr(10).join(response_format_lines)}"""
 
         try:
-            result_text = self._create_message_with_retry(prompt, max_tokens=200)
+            result_text = self._create_message_with_retry(prompt, max_tokens=300)
+            selected = {cat: [] for cat in all_stories}
 
-            # Parse the response
-            selected = {'tech': [], 'finance': []}
             for line in result_text.strip().split('\n'):
-                if line.startswith('TECH:'):
-                    tech_nums = [int(n) - 1 for n in re.findall(r"\d+", line)]
-                    selected['tech'] = [tech_stories[i] for i in tech_nums if i < len(tech_stories)]
-                elif line.startswith('FINANCE:'):
-                    finance_nums = [int(n) - 1 for n in re.findall(r"\d+", line)]
-                    selected['finance'] = [finance_stories[i] for i in finance_nums if i < len(finance_stories)]
+                for cat in all_stories:
+                    if line.upper().startswith(f"{cat.upper()}:"):
+                        nums = [int(n) - 1 for n in re.findall(r"\d+", line)]
+                        selected[cat] = [all_stories[cat][i] for i in nums if i < len(all_stories[cat])]
+                        break
 
-            if not selected["tech"]:
-                selected["tech"] = tech_stories[:num_stories // 2]
-            if not selected["finance"]:
-                selected["finance"] = finance_stories[:num_stories // 2]
+            # Fallback for any category Claude missed
+            for cat in all_stories:
+                if not selected[cat]:
+                    selected[cat] = all_stories[cat][:num_per_category]
+
             return selected
+
         except Exception as e:
             print(f"Error ranking stories: {e}")
-            # Fallback: just take the first N stories
-            return {
-                'tech': tech_stories[:num_stories//2],
-                'finance': finance_stories[:num_stories//2]
-            }
+            return {cat: stories[:num_per_category] for cat, stories in all_stories.items()}
+
+    def generate_daily_brief(self, summarized: Dict[str, List[Dict]]) -> str:
+        """Generate a 2-sentence overview of the day's most important themes."""
+        all_titles = []
+        for cat, stories in summarized.items():
+            for s in stories:
+                all_titles.append(f"[{cat.upper()}] {s['title']}")
+
+        titles_text = "\n".join(all_titles)
+
+        prompt = f"""Based on these headlines from today's news digest, write exactly 2 sentences summarizing the most important themes and what they signal for the day ahead. Be specific and direct — name the actual topics, companies, or trends.
+
+Headlines:
+{titles_text}
+
+Write only the 2-sentence brief, nothing else."""
+
+        try:
+            return self._create_message_with_retry(prompt, max_tokens=150).strip()
+        except Exception as e:
+            print(f"Error generating daily brief: {e}")
+            return ""
 
     def summarize_article(self, title: str, content: str, url: str) -> str:
-        """
-        Summarize a single article to 2-3 sentences using Claude.
-        """
-        prompt = f"""Summarize this news article in exactly 2-3 clear, informative sentences. Focus on the key facts and implications.
+        """Summarize a single article in 2 sentences + a 'Why it matters' line."""
+        prompt = f"""Summarize this news article in exactly 2 clear sentences covering the key facts. Then add one sentence starting with exactly "Why it matters:" explaining the real-world significance.
 
 Title: {title}
 
 Content: {content}
 
-Provide only the summary, no additional commentary."""
+Provide only the 3-sentence summary, no additional commentary."""
 
         try:
-            summary = self._create_message_with_retry(prompt, max_tokens=150).strip()
-            return summary
+            return self._create_message_with_retry(prompt, max_tokens=200).strip()
         except Exception as e:
             print(f"Error summarizing article '{title}': {e}")
             return "Unable to generate summary for this article."
 
     def summarize_stories(self, stories: List[Dict], fetcher) -> List[Dict]:
-        """
-        Summarize a list of stories.
-        """
+        """Summarize a list of stories."""
         summarized_stories = []
 
         for story in stories:
             print(f"Summarizing: {story['title']}")
 
-            # Try to extract content for better summarization
             content = fetcher.extract_article_content(story['url'])
 
-            # Fallback to existing summary/text if content extraction fails
             if not content:
                 content = story.get('summary', story.get('text', ''))
-
-            # If still no content, use just the title
             if not content:
                 content = "No additional content available."
 
@@ -129,7 +150,7 @@ Provide only the summary, no additional commentary."""
                 'title': story['title'],
                 'url': story['url'],
                 'source': story['source'],
-                'summary': summary
+                'summary': summary,
             })
 
         return summarized_stories

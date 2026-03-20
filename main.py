@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-NewsAgent - Daily Tech & Finance News Digest
-Fetches, summarizes, and emails top news stories.
+NewsAgent - Daily News Digest
+Fetches, summarizes, and emails top stories across AI, Finance, Industry, and Marketing.
 """
 import json
 import os
@@ -62,9 +62,11 @@ def main():
     print("=" * 60)
     print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
+    categories = list(config.NEWS_SOURCES.keys())
+    num_per_category = max(2, config.NUM_STORIES // len(categories))
+
     sender = None
     try:
-        # Validate configuration
         try:
             config.validate_config()
             print("✓ Configuration validated")
@@ -73,7 +75,6 @@ def main():
             print("\nPlease create a .env file based on .env.example and fill in your credentials.")
             return 1
 
-        # Initialize components
         print("\nInitializing components...")
         fetcher = NewsFetcher()
         summarizer = ArticleSummarizer(config.ANTHROPIC_API_KEY)
@@ -86,88 +87,76 @@ def main():
         print("STEP 1: Fetching news from sources...")
         print("-" * 60)
         all_news = fetcher.fetch_all_news(config.NEWS_SOURCES, num_per_source=10)
-        all_news["tech"] = fetcher.deduplicate_stories(all_news["tech"])
-        all_news["finance"] = fetcher.deduplicate_stories(all_news["finance"])
-        fetched_news = {
-            "tech": list(all_news["tech"]),
-            "finance": list(all_news["finance"]),
-        }
+
+        for cat in categories:
+            all_news[cat] = fetcher.deduplicate_stories(all_news[cat])
+
+        fetched_news = {cat: list(all_news[cat]) for cat in categories}
 
         seen_articles = prune_seen_articles(
             load_seen_articles(SEEN_ARTICLES_FILE),
             int(datetime.now().timestamp()),
         )
-        all_news["tech"] = filter_new_stories(all_news["tech"], seen_articles)
-        all_news["finance"] = filter_new_stories(all_news["finance"], seen_articles)
 
-        tech_count = len(all_news['tech'])
-        finance_count = len(all_news['finance'])
-        print(f"✓ Fetched {tech_count} new tech stories")
-        print(f"✓ Fetched {finance_count} new finance stories")
+        for cat in categories:
+            all_news[cat] = filter_new_stories(all_news[cat], seen_articles)
+            print(f"✓ Fetched {len(all_news[cat])} new {cat} stories")
 
-        if tech_count == 0 and finance_count == 0:
+        if all(len(all_news[cat]) == 0 for cat in categories):
             print("\nNo unseen stories found. Falling back to best available current stories.")
             all_news = fetched_news
 
         # Rank and select top stories
         print("\n" + "-" * 60)
-        print(f"STEP 2: Selecting top {config.NUM_STORIES} most important stories...")
+        print(f"STEP 2: Selecting top {num_per_category} stories per category...")
         print("-" * 60)
-        selected_stories = summarizer.rank_and_select_stories(
-            all_news['tech'],
-            all_news['finance'],
-            config.NUM_STORIES
-        )
+        selected_stories = summarizer.rank_and_select_stories(all_news, num_per_category)
 
-        tech_selected = len(selected_stories['tech'])
-        finance_selected = len(selected_stories['finance'])
-        print(f"✓ Selected {tech_selected} tech stories")
-        print(f"✓ Selected {finance_selected} finance stories")
+        for cat in categories:
+            print(f"✓ Selected {len(selected_stories[cat])} {cat} stories")
 
         # Summarize stories
         print("\n" + "-" * 60)
         print("STEP 3: Generating summaries with Claude AI...")
         print("-" * 60)
+        summarized = {}
+        for cat in categories:
+            print(f"\nSummarizing {cat} stories...")
+            summarized[cat] = summarizer.summarize_stories(selected_stories[cat], fetcher)
+            print(f"✓ Completed {len(summarized[cat])} {cat} summaries")
 
-        print("\nSummarizing tech stories...")
-        tech_summarized = summarizer.summarize_stories(selected_stories['tech'], fetcher)
-        print(f"✓ Completed {len(tech_summarized)} tech summaries")
-
-        print("\nSummarizing finance stories...")
-        finance_summarized = summarizer.summarize_stories(selected_stories['finance'], fetcher)
-        print(f"✓ Completed {len(finance_summarized)} finance summaries")
+        print("\nGenerating daily brief...")
+        daily_brief = summarizer.generate_daily_brief(summarized)
+        print("✓ Daily brief generated")
 
         # Format email
         print("\n" + "-" * 60)
         print("STEP 4: Formatting email digest...")
         print("-" * 60)
-        html_content = formatter.format_digest(tech_summarized, finance_summarized)
-        plain_text = formatter.format_plain_text(tech_summarized, finance_summarized)
+        html_content = formatter.format_digest(summarized, daily_brief, config.CATEGORY_CONFIG)
+        plain_text = formatter.format_plain_text(summarized, config.CATEGORY_CONFIG)
         print("✓ Email formatted")
 
         # Send email
         print("\n" + "-" * 60)
         print("STEP 5: Sending email...")
         print("-" * 60)
-        success = sender.send_digest(
-            config.RECIPIENT_EMAIL,
-            html_content,
-            plain_text
-        )
+        success = sender.send_digest(config.RECIPIENT_EMAIL, html_content, plain_text)
 
-        # Summary
         print("\n" + "=" * 60)
         if success:
             now_ts = int(datetime.now().timestamp())
-            for story in tech_summarized + finance_summarized:
-                url = story.get("url")
-                if url:
-                    seen_articles[url] = now_ts
+            for cat_stories in summarized.values():
+                for story in cat_stories:
+                    url = story.get("url")
+                    if url:
+                        seen_articles[url] = now_ts
             save_seen_articles(SEEN_ARTICLES_FILE, seen_articles)
 
+            total = sum(len(s) for s in summarized.values())
             print("SUCCESS! Your news digest has been sent.")
             print(f"Recipient: {config.RECIPIENT_EMAIL}")
-            print(f"Total stories: {len(tech_summarized) + len(finance_summarized)}")
+            print(f"Total stories: {total} ({num_per_category} per category)")
         else:
             print("FAILED to send email. Please check the error messages above.")
             sender.send_failure_alert(config.RECIPIENT_EMAIL, "Digest email send step failed.")
@@ -177,6 +166,7 @@ def main():
         print(f"Completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print("=" * 60)
         return 0
+
     except Exception as e:
         error_message = str(e)
         print(f"Unhandled error: {error_message}")
