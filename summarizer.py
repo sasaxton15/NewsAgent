@@ -127,7 +127,7 @@ Write only the subject line. Example: "OpenAI releases agents SDK + Fed holds ra
 
         titles_text = "\n".join(all_titles)
 
-        prompt = f"""Based on these headlines from today's news digest, write exactly 2 sentences summarizing the most important themes and what they signal for the day ahead. Be specific and direct — name the actual topics, companies, or trends.
+        prompt = f"""Based on these headlines from today's news digest, write exactly 2 sentences summarizing the most important themes. Be specific — name actual topics, companies, or trends. Each sentence must be under 25 words. No filler phrases.
 
 Headlines:
 {titles_text}
@@ -135,7 +135,7 @@ Headlines:
 Write only the 2-sentence brief, nothing else."""
 
         try:
-            return self._create_message_with_retry(prompt, max_tokens=150).strip()
+            return self._create_message_with_retry(prompt, max_tokens=80).strip()
         except Exception as e:
             print(f"Error generating daily brief: {e}")
             return ""
@@ -151,7 +151,9 @@ Content: {content}
 Provide only the 3-sentence summary, no additional commentary."""
 
         try:
-            return self._create_message_with_retry(prompt, max_tokens=200).strip()
+            result = self._create_message_with_retry(prompt, max_tokens=200).strip()
+            result = re.sub(r'^#+\s*\S+\s*\n', '', result, flags=re.MULTILINE).strip()
+            return result
         except Exception as e:
             print(f"Error summarizing article '{title}': {e}")
             return "Unable to generate summary for this article."

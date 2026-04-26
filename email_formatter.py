@@ -170,6 +170,22 @@ class EmailFormatter:
         .read-more:hover {{
             color: #333;
         }}
+        .jump-links {{
+            padding: 12px 36px;
+            border-bottom: 1px solid #ebebeb;
+            font-size: 11px;
+            color: #aaa;
+            text-align: center;
+        }}
+        .jump-links a {{
+            color: #888;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 6px;
+        }}
+        .jump-links a:hover {{
+            color: #333;
+        }}
         .footer {{
             padding: 24px 36px;
             border-top: 1px solid #ebebeb;
@@ -196,6 +212,14 @@ class EmailFormatter:
         </div>
 """
 
+        active_cats = [cat for cat, stories in summarized.items() if stories]
+        if len(active_cats) > 1:
+            links = " &middot; ".join(
+                f'<a href="#{cat}">{category_config.get(cat, {}).get("label", cat.title())}</a>'
+                for cat in active_cats
+            )
+            html += f'\n        <div class="jump-links">Jump to: {links}</div>\n'
+
         for cat, stories in summarized.items():
             if not stories:
                 continue
@@ -203,7 +227,7 @@ class EmailFormatter:
             color = cfg['color']
 
             html += f"""
-        <div class="section">
+        <div class="section" id="{cat}">
             <div class="section-label">
                 <span class="section-label-bar" style="background:{color};"></span>
                 <span class="section-label-text">{cfg['emoji']} {cfg['label']}</span>

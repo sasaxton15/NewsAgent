@@ -1,325 +1,188 @@
-# NewsAgent - Daily Tech & Finance News Digest
+# NewsAgent — AI-Powered Daily News Digest
 
-An intelligent news aggregation agent that fetches top tech and finance stories, summarizes them using Claude AI, and delivers a beautifully formatted digest to your Gmail inbox daily.
+A personal AI agent that reads dozens of sources every morning and delivers a curated digest to your inbox. Built with Python and Claude AI.
 
-## Features
+> I built this because I was spending too much time tab-hopping between news sites. Now I get one clean email with the stories that actually matter, summarized and ranked by Claude.
 
-- Fetches news from multiple sources:
-  - **Tech**: Hacker News, TechCrunch, The Verge
-  - **Finance**: Reuters, Bloomberg, WSJ
-- Uses Claude AI to:
-  - Rank and select the most important stories
-  - Generate concise 2-3 sentence summaries
-- Sends a clean, formatted HTML email digest
-- Runs locally with easy automation options
+---
 
-## Project Structure
+## What it does
 
-```
-NewsAgent/
-├── main.py              # Main orchestration script
-├── config.py            # Configuration management
-├── news_fetcher.py      # News fetching from APIs and RSS feeds
-├── summarizer.py        # Claude AI summarization
-├── email_formatter.py   # HTML email formatting
-├── email_sender.py      # Gmail SMTP sender
-├── requirements.txt     # Python dependencies
-├── .env.example         # Environment variables template
-├── .gitignore          # Git ignore file
-└── README.md           # This file
-```
+Every day, NewsAgent:
 
-## Prerequisites
+1. **Fetches** stories from 13+ sources across 4 categories — AI, Finance, Industry, and Marketing
+2. **Ranks** them using Claude AI, prioritizing the most signal-rich stories
+3. **Summarizes** each one in 2 sentences + a "Why it matters" line
+4. **Delivers** a clean, TLDR-style HTML digest to your inbox
 
-- Python 3.8 or higher
+<!-- Add a screenshot of your email digest here -->
+<!-- ![NewsAgent Digest](screenshot.png) -->
+
+---
+
+## Categories & Sources
+
+| Category | Sources |
+|---|---|
+| 🤖 AI & Technology | Hacker News, The Rundown AI, Hugging Face Blog, VentureBeat, MIT Technology Review, The New Stack |
+| 💰 Finance & Markets | Reuters, Yahoo Finance, CNBC, Bloomberg Markets |
+| 🏢 Industry & Business | Harvard Business Review, Fortune, Fast Company |
+| 📣 Marketing | Digiday, Adweek, Marketing Week |
+
+---
+
+## Setup
+
+### Prerequisites
+- Python 3.8+
+- [Anthropic API key](https://console.anthropic.com/) (Claude)
 - Gmail account
-- Anthropic API key (for Claude)
 
-## Setup Instructions
-
-### 1. Clone or Navigate to Project
+### 1. Clone the repo
 
 ```bash
-cd /Users/srandlesims/NewsAgent
+git clone https://github.com/yourusername/NewsAgent.git
+cd NewsAgent
 ```
 
-### 2. Create Virtual Environment (Recommended)
+### 2. Install dependencies
 
 ```bash
 python3 -m venv venv
-source venv/bin/activate  # On Mac/Linux
-# or
-venv\Scripts\activate     # On Windows
-```
-
-### 3. Install Dependencies
-
-```bash
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4. Get Your API Keys
-
-#### Anthropic API Key (Claude)
-1. Go to https://console.anthropic.com/
-2. Sign up or log in
-3. Navigate to API Keys section
-4. Create a new API key
-5. Copy the key (starts with `sk-ant-...`)
-
-#### Gmail App Password
-1. Enable 2-Factor Authentication on your Gmail account
-2. Go to https://myaccount.google.com/apppasswords
-3. Select "Mail" and your device
-4. Click "Generate"
-5. Copy the 16-character password (remove spaces)
-
-### 5. Configure Environment Variables
+### 3. Configure your environment
 
 ```bash
 cp .env.example .env
 ```
 
-Edit the `.env` file with your credentials:
+Edit `.env`:
 
 ```bash
-# Anthropic API Key for Claude
-ANTHROPIC_API_KEY=sk-ant-your-key-here
-
-# Gmail Configuration
-GMAIL_USER=your.email@gmail.com
-GMAIL_APP_PASSWORD=your16charpassword
-
-# Email Settings
-RECIPIENT_EMAIL=your.email@gmail.com
-
-# News Preferences (number of stories in digest)
-NUM_STORIES=6
+ANTHROPIC_API_KEY=sk-ant-...        # From console.anthropic.com
+GMAIL_USER=you@gmail.com
+GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx  # See below
+RECIPIENT_EMAIL=you@gmail.com
+NUM_STORIES=8                       # Total stories across all categories
 ```
 
-## Usage
+**Getting a Gmail App Password:**
+1. Enable 2-Factor Authentication on your Google account
+2. Go to [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+3. Generate a password for "Mail" — copy the 16 characters
 
-### Run Manually
-
-To generate and send your news digest right now:
+### 4. Run it
 
 ```bash
 python3 main.py
 ```
 
-You should see output like:
+---
 
-```
-============================================================
-NewsAgent - Daily News Digest Generator
-============================================================
-Started at: 2024-01-26 09:00:00
+## Automate it
 
-✓ Configuration validated
+### GitHub Actions (recommended — free, no server needed)
 
-Initializing components...
-✓ All components initialized
+The repo includes a workflow that runs daily at 7 AM UTC. Just add your credentials as repository secrets:
 
-------------------------------------------------------------
-STEP 1: Fetching news from sources...
-------------------------------------------------------------
-✓ Fetched 30 tech stories
-✓ Fetched 30 finance stories
+Go to **Settings → Secrets and variables → Actions** and add:
 
-------------------------------------------------------------
-STEP 2: Selecting top 6 most important stories...
-------------------------------------------------------------
-✓ Selected 3 tech stories
-✓ Selected 3 finance stories
+| Secret | Value |
+|---|---|
+| `ANTHROPIC_API_KEY` | Your Anthropic API key |
+| `GMAIL_USER` | Your Gmail address |
+| `GMAIL_APP_PASSWORD` | Your Gmail app password |
+| `RECIPIENT_EMAIL` | Where to send the digest |
 
-------------------------------------------------------------
-STEP 3: Generating summaries with Claude AI...
-------------------------------------------------------------
-Summarizing tech stories...
-✓ Completed 3 tech summaries
+The workflow at `.github/workflows/daily-news.yml` handles the rest.
 
-Summarizing finance stories...
-✓ Completed 3 finance summaries
+### macOS / Linux (cron)
 
-------------------------------------------------------------
-STEP 4: Formatting email digest...
-------------------------------------------------------------
-✓ Email formatted
-
-------------------------------------------------------------
-STEP 5: Sending email...
-------------------------------------------------------------
-Connecting to Gmail SMTP server...
-Logging in...
-Sending email to your.email@gmail.com...
-Email sent successfully!
-
-============================================================
-SUCCESS! Your news digest has been sent.
-Recipient: your.email@gmail.com
-Total stories: 6
-============================================================
-```
-
-### Automate Daily Delivery
-
-#### Option 1: macOS/Linux (cron)
-
-1. Open crontab editor:
 ```bash
 crontab -e
+# Add this line to run at 8 AM daily:
+0 8 * * * cd /path/to/NewsAgent && venv/bin/python3 main.py >> newsagent.log 2>&1
 ```
 
-2. Add this line to run daily at 8 AM:
-```bash
-0 8 * * * cd /Users/srandlesims/NewsAgent && /Users/srandlesims/NewsAgent/venv/bin/python3 main.py >> /Users/srandlesims/NewsAgent/newsagent.log 2>&1
-```
-
-3. Save and exit (`:wq` in vim)
-
-#### Option 2: macOS (launchd)
-
-Create a file at `~/Library/LaunchAgents/com.newsagent.daily.plist`:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.newsagent.daily</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/Users/srandlesims/NewsAgent/venv/bin/python3</string>
-        <string>/Users/srandlesims/NewsAgent/main.py</string>
-    </array>
-    <key>StartCalendarInterval</key>
-    <dict>
-        <key>Hour</key>
-        <integer>8</integer>
-        <key>Minute</key>
-        <integer>0</integer>
-    </dict>
-    <key>WorkingDirectory</key>
-    <string>/Users/srandlesims/NewsAgent</string>
-    <key>StandardOutPath</key>
-    <string>/Users/srandlesims/NewsAgent/newsagent.log</string>
-    <key>StandardErrorPath</key>
-    <string>/Users/srandlesims/NewsAgent/newsagent.log</string>
-</dict>
-</plist>
-```
-
-Then load it:
-```bash
-launchctl load ~/Library/LaunchAgents/com.newsagent.daily.plist
-```
-
-#### Option 3: Windows (Task Scheduler)
-
-1. Open Task Scheduler
-2. Create Basic Task
-3. Set trigger to Daily at your preferred time
-4. Action: Start a program
-5. Program: `C:\Path\To\NewsAgent\venv\Scripts\python.exe`
-6. Arguments: `main.py`
-7. Start in: `C:\Path\To\NewsAgent`
+---
 
 ## Customization
 
-### Change News Sources
+### Add your own sources
 
-Edit `config.py` and modify the `NEWS_SOURCES` dictionary:
+Open `config.py` and add any RSS feed to the relevant category:
 
 ```python
 NEWS_SOURCES = {
-    'tech': [
+    'ai': [
         {
             'name': 'Your Source',
             'type': 'rss',
             'url': 'https://example.com/feed.xml'
-        }
+        },
+        # ...existing sources
     ],
-    'finance': [
-        # Add your sources here
-    ]
 }
 ```
 
-### Adjust Number of Stories
+### Add a new category
 
-Change `NUM_STORIES` in your `.env` file:
+Add an entry to both `NEWS_SOURCES` and `CATEGORY_CONFIG` in `config.py`:
 
-```bash
-NUM_STORIES=10  # Get 10 stories total (5 tech, 5 finance)
+```python
+CATEGORY_CONFIG = {
+    'crypto': {
+        'label': 'Crypto & Web3',
+        'emoji': '🪙',
+        'color': '#f39c12',
+    },
+}
 ```
 
-### Customize Email Style
+### Change story count
 
-Edit `email_formatter.py` to modify the HTML template and styling.
-
-## Troubleshooting
-
-### Gmail Authentication Errors
-
-- Make sure you're using an App Password, not your regular password
-- Verify 2FA is enabled on your Google account
-- Check that "Less secure app access" is not blocking you
-
-### No Stories Fetched
-
-- Check your internet connection
-- Some RSS feeds may be temporarily unavailable
-- Try running with fewer sources first
-
-### Claude API Errors
-
-- Verify your API key is correct
-- Check you have available credits
-- Ensure the key has proper permissions
-
-### Email Not Received
-
-- Check spam/junk folder
-- Verify RECIPIENT_EMAIL is correct
-- Look for error messages in the console output
-
-## Cost Estimate
-
-- **Anthropic API**: ~$0.10-0.30 per day (based on Claude 3.5 Sonnet pricing)
-- **NewsAPI**: Free tier is sufficient (100 requests/day)
-- **Gmail**: Free
-
-## Security Notes
-
-- Never commit your `.env` file to version control
-- Keep your API keys secure
-- Use app-specific passwords for Gmail
-- The `.gitignore` file protects your credentials
-
-## Future Enhancements
-
-Possible additions:
-- More news sources (Reddit, Twitter trends, etc.)
-- Category filtering (AI, crypto, healthcare, etc.)
-- Sentiment analysis
-- Weekly/monthly digest options
-- Slack or Discord integration
-- Web dashboard for viewing history
-- Custom filters based on keywords
-
-## License
-
-MIT License - Feel free to modify and use as you wish!
-
-## Support
-
-For issues or questions:
-1. Check the troubleshooting section above
-2. Review your `.env` configuration
-3. Check the console output for error messages
-4. Verify all API credentials are valid
+```bash
+NUM_STORIES=12  # 3 per category if you have 4 categories
+```
 
 ---
 
-Built with Claude AI, Python, and lots of coffee! ☕
+## How the AI works
+
+NewsAgent makes three types of Claude API calls per run:
+
+1. **Ranking** — Given all fetched headlines, Claude selects the most important stories per category based on signal value (e.g. for AI: model releases, agent frameworks, policy shifts)
+2. **Summarizing** — Each article is fetched and summarized in 2 facts + a "Why it matters" line
+3. **Daily brief** — A 2-sentence overview of the day's key themes, used as the email intro
+
+---
+
+## Cost
+
+Running this daily costs roughly **$0.05–$0.15/day** depending on story count, using Claude Haiku.
+
+---
+
+## Troubleshooting
+
+**No email received** — Check spam, verify `RECIPIENT_EMAIL`, and confirm Gmail App Password is correct (no spaces).
+
+**Claude API error** — Verify your `ANTHROPIC_API_KEY` and that your account has credits.
+
+**RSS feed errors** — Some feeds go down occasionally. The agent continues with available sources and logs warnings.
+
+---
+
+## Built with
+
+- [Claude AI](https://anthropic.com) — story ranking, summarization, daily brief
+- [feedparser](https://pythonhosted.org/feedparser/) — RSS parsing
+- [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) — article content extraction
+- [GitHub Actions](https://github.com/features/actions) — daily scheduling
+
+---
+
+MIT License
