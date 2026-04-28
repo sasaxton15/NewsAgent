@@ -41,7 +41,7 @@ Every day, NewsAgent:
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/yourusername/NewsAgent.git
+git clone https://github.com/sasaxton15/NewsAgent.git
 cd NewsAgent
 ```
 
