@@ -1,10 +1,15 @@
 """Fetch news from various sources including Hacker News API and RSS feeds."""
-from typing import Dict, List
+import calendar
+import time
+from typing import Dict, List, Optional, Set
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import feedparser
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+TRACKING_PARAMS = {'fbclid', 'gclid', 'mc_cid', 'mc_eid', 'cmpid', 'partner', 'ref', 'src'}
 
 
 class NewsFetcher:
@@ -26,6 +31,35 @@ class NewsFetcher:
         adapter = HTTPAdapter(max_retries=retry_strategy)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
+
+    @staticmethod
+    def normalize_url(url: str) -> str:
+        """Canonicalize a URL so the same story matches across feeds and runs."""
+        url = (url or "").strip()
+        if not url:
+            return ""
+        try:
+            scheme, netloc, path, query, _ = urlsplit(url)
+            params = [
+                (k, v) for k, v in parse_qsl(query, keep_blank_values=True)
+                if k.lower() not in TRACKING_PARAMS and not k.lower().startswith('utm_')
+            ]
+            return urlunsplit((
+                scheme.lower(),
+                netloc.lower(),
+                path.rstrip('/'),
+                urlencode(params),
+                '',
+            ))
+        except ValueError:
+            return url
+
+    @staticmethod
+    def _age_hours(epoch: Optional[float]) -> Optional[float]:
+        """Hours elapsed since a unix timestamp, or None if unknown."""
+        if not epoch:
+            return None
+        return max(0.0, (time.time() - epoch) / 3600)
 
     def fetch_hacker_news(self, num_stories: int = 10) -> List[Dict]:
         """Fetch top stories from Hacker News API."""
@@ -54,7 +88,8 @@ class NewsFetcher:
                             'source': 'Hacker News',
                             'score': story_data.get('score', 0),
                             'text': story_data.get('text', ''),
-                            'time': story_data.get('time', 0)
+                            'time': story_data.get('time', 0),
+                            'age_hours': self._age_hours(story_data.get('time')),
                         })
                 except Exception as e:
                     print(f"Error fetching HN story {story_id}: {e}")
@@ -76,13 +111,16 @@ class NewsFetcher:
 
             stories = []
             for entry in feed.entries[:num_stories]:
+                published_parsed = entry.get('published_parsed') or entry.get('updated_parsed')
+                epoch = calendar.timegm(published_parsed) if published_parsed else None
                 stories.append({
                     'title': entry.get('title', ''),
                     'url': entry.get('link', ''),
                     'source': source_name,
                     'summary': entry.get('summary', ''),
                     'published': entry.get('published', ''),
-                    'time': entry.get('published_parsed', None)
+                    'time': published_parsed,
+                    'age_hours': self._age_hours(epoch),
                 })
 
             return stories
@@ -109,17 +147,28 @@ class NewsFetcher:
 
         return all_news
 
-    def deduplicate_stories(self, stories: List[Dict]) -> List[Dict]:
-        """Remove duplicate stories by URL within a batch."""
+    def deduplicate_stories(self, stories: List[Dict], seen_urls: Optional[Set[str]] = None) -> List[Dict]:
+        """Remove duplicate stories by normalized URL.
+
+        Pass a shared `seen_urls` set to also dedupe across categories.
+        """
         deduped = []
-        seen_urls = set()
+        if seen_urls is None:
+            seen_urls = set()
         for story in stories:
-            url = (story.get("url") or "").strip()
+            url = self.normalize_url(story.get("url", ""))
             if not url or url in seen_urls:
                 continue
             seen_urls.add(url)
             deduped.append(story)
         return deduped
+
+    def filter_recent(self, stories: List[Dict], max_age_hours: float) -> List[Dict]:
+        """Drop stories older than max_age_hours; keep stories with no publish date."""
+        return [
+            s for s in stories
+            if s.get('age_hours') is None or s['age_hours'] <= max_age_hours
+        ]
 
     def extract_article_content(self, url: str) -> str:
         """
@@ -140,7 +189,7 @@ class NewsFetcher:
 
             if main_content:
                 text = main_content.get_text(separator=' ', strip=True)
-                return text[:2000]
+                return text[:6000]
 
             return ""
         except Exception as e:

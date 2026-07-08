@@ -1,10 +1,19 @@
 """Summarize news articles using Claude AI."""
+import html
 import re
 import time
 from typing import Dict, List
 
 from anthropic import Anthropic
 from anthropic import APIError, APITimeoutError, RateLimitError
+
+
+def _clean_snippet(text: str, max_chars: int = 200) -> str:
+    """Strip HTML tags/entities from an RSS summary and truncate."""
+    text = re.sub(r'<[^>]+>', ' ', text or '')
+    text = html.unescape(text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text[:max_chars]
 
 
 class ArticleSummarizer:
@@ -40,14 +49,26 @@ class ArticleSummarizer:
             'marketing': 'Brand campaigns, platform algorithm changes, consumer behavior shifts, ad industry news, martech launches',
         }
 
+        def story_line(i: int, s: Dict) -> str:
+            meta = [s['source']]
+            age = s.get('age_hours')
+            if age is not None:
+                meta.append(f"{age:.0f}h ago")
+            if s.get('score'):
+                meta.append(f"{s['score']} points")
+            line = f"{i+1}. {s['title']} ({', '.join(meta)})"
+            snippet = _clean_snippet(s.get('summary', ''))
+            if snippet:
+                line += f"\n   Excerpt: {snippet}"
+            return line
+
         sections = []
         response_format_lines = []
         for category, stories in all_stories.items():
             if not stories:
                 continue
             titles = "\n".join([
-                f"{i+1}. {s['title']} (from {s['source']})"
-                for i, s in enumerate(stories[:20])
+                story_line(i, s) for i, s in enumerate(stories[:20])
             ])
             sections.append(f"{category.upper()} STORIES:\n{titles}")
             response_format_lines.append(f"{category.upper()}: 1,2,3")
@@ -62,7 +83,7 @@ class ArticleSummarizer:
 
 {chr(10).join(sections)}
 
-Select the {num_per_category} most important stories from each category.
+Select the {num_per_category} most important stories from each category. Prefer fresher stories and substantive news over opinion pieces, listicles, and clickbait.
 
 Prioritize by category:
 {priority_lines}
@@ -148,7 +169,9 @@ Title: {title}
 
 Content: {content}
 
-Provide only the 3-sentence summary, no additional commentary."""
+Base every statement strictly on the title and content above. If the content is missing, paywalled, or too thin to support two factual sentences, write a single cautious sentence about what the title indicates instead — never invent specifics like numbers, quotes, or announcements.
+
+Provide only the summary, no additional commentary."""
 
         try:
             result = self._create_message_with_retry(prompt, max_tokens=200).strip()
@@ -168,7 +191,7 @@ Provide only the 3-sentence summary, no additional commentary."""
             content = fetcher.extract_article_content(story['url'])
 
             if not content:
-                content = story.get('summary', story.get('text', ''))
+                content = _clean_snippet(story.get('summary', story.get('text', '')), max_chars=2000)
             if not content:
                 content = "No additional content available."
 

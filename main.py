@@ -51,8 +51,11 @@ def prune_seen_articles(seen_articles: dict, now_ts: int) -> dict:
 
 
 def filter_new_stories(stories: list, seen_articles: dict) -> list:
-    """Remove stories that were sent recently."""
-    return [story for story in stories if story.get("url") not in seen_articles]
+    """Remove stories that were sent recently (matched on normalized URL)."""
+    return [
+        story for story in stories
+        if NewsFetcher.normalize_url(story.get("url", "")) not in seen_articles
+    ]
 
 
 def main():
@@ -88,8 +91,11 @@ def main():
         print("-" * 60)
         all_news = fetcher.fetch_all_news(config.NEWS_SOURCES, num_per_source=10)
 
+        # Dedup within and across categories, then drop stale stories
+        seen_urls = set()
         for cat in categories:
-            all_news[cat] = fetcher.deduplicate_stories(all_news[cat])
+            all_news[cat] = fetcher.deduplicate_stories(all_news[cat], seen_urls)
+            all_news[cat] = fetcher.filter_recent(all_news[cat], config.MAX_STORY_AGE_HOURS)
 
         fetched_news = {cat: list(all_news[cat]) for cat in categories}
 
@@ -136,8 +142,14 @@ def main():
         print("STEP 4: Formatting email digest...")
         print("-" * 60)
         html_content = formatter.format_digest(summarized, daily_brief, config.CATEGORY_CONFIG)
-        plain_text = formatter.format_plain_text(summarized, config.CATEGORY_CONFIG)
+        plain_text = formatter.format_plain_text(summarized, config.CATEGORY_CONFIG, daily_brief)
         print("✓ Email formatted")
+
+        if os.getenv("DRY_RUN"):
+            with open("digest.html", "w", encoding="utf-8") as f:
+                f.write(html_content)
+            print("\nDRY_RUN set: wrote digest.html, skipping email send and seen-articles update.")
+            return 0
 
         # Send email
         print("\n" + "-" * 60)
@@ -150,7 +162,7 @@ def main():
             now_ts = int(datetime.now().timestamp())
             for cat_stories in summarized.values():
                 for story in cat_stories:
-                    url = story.get("url")
+                    url = NewsFetcher.normalize_url(story.get("url", ""))
                     if url:
                         seen_articles[url] = now_ts
             save_seen_articles(SEEN_ARTICLES_FILE, seen_articles)

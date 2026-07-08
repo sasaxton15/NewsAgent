@@ -1,7 +1,10 @@
 """Format news digest as HTML email."""
+import html as html_lib
 import re
 from datetime import datetime
 from typing import Dict, List
+
+from premailer import transform
 
 
 class EmailFormatter:
@@ -16,12 +19,26 @@ class EmailFormatter:
         return summary.strip(), None
 
     @staticmethod
+    def _esc(text: str) -> str:
+        return html_lib.escape(text or "", quote=True)
+
+    @staticmethod
+    def _reading_time_minutes(summarized: Dict[str, List[Dict]], daily_brief: str) -> int:
+        words = len(daily_brief.split())
+        for stories in summarized.values():
+            for story in stories:
+                words += len(story['title'].split()) + len(story['summary'].split())
+        return max(1, round(words / 220))
+
+    @staticmethod
     def format_digest(
         summarized: Dict[str, List[Dict]],
         daily_brief: str,
         category_config: dict,
     ) -> str:
         today = datetime.now().strftime("%B %d, %Y")
+        total_stories = sum(len(s) for s in summarized.values())
+        read_minutes = EmailFormatter._reading_time_minutes(summarized, daily_brief)
 
         html = f"""<!DOCTYPE html>
 <html>
@@ -67,6 +84,11 @@ class EmailFormatter:
             font-size: 13px;
             color: #aaa;
         }}
+        .meta-line {{
+            font-size: 12px;
+            color: #bbb;
+            margin-top: 6px;
+        }}
         .brief-box {{
             margin: 24px 36px;
             padding: 16px 20px;
@@ -92,9 +114,6 @@ class EmailFormatter:
             margin-bottom: 8px;
         }}
         .section-label {{
-            display: flex;
-            align-items: center;
-            gap: 8px;
             padding: 16px 0 12px;
             border-bottom: 2px solid #ebebeb;
             margin-bottom: 4px;
@@ -104,6 +123,8 @@ class EmailFormatter:
             width: 3px;
             height: 16px;
             border-radius: 2px;
+            margin-right: 8px;
+            vertical-align: middle;
         }}
         .section-label-text {{
             font-size: 11px;
@@ -111,6 +132,7 @@ class EmailFormatter:
             letter-spacing: 2px;
             text-transform: uppercase;
             color: #555;
+            vertical-align: middle;
         }}
         .story {{
             padding: 18px 0;
@@ -133,11 +155,18 @@ class EmailFormatter:
             line-height: 1.4;
             margin-bottom: 8px;
         }}
-        .story-title a {{
+        .story-title-lead {{
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.35;
+            letter-spacing: -0.2px;
+            margin-bottom: 8px;
+        }}
+        .story-title a, .story-title-lead a {{
             color: #1a1a1a;
             text-decoration: none;
         }}
-        .story-title a:hover {{
+        .story-title a:hover, .story-title-lead a:hover {{
             text-decoration: underline;
         }}
         .story-summary {{
@@ -201,6 +230,7 @@ class EmailFormatter:
             <div class="masthead">The Brief</div>
             <div class="headline">Your Daily Digest</div>
             <div class="dateline">{today}</div>
+            <div class="meta-line">{total_stories} stories &middot; ~{read_minutes} min read</div>
         </div>
 """
 
@@ -208,7 +238,7 @@ class EmailFormatter:
             html += f"""
         <div class="brief-box">
             <div class="brief-label">Today at a Glance</div>
-            <div class="brief-text">{daily_brief}</div>
+            <div class="brief-text">{EmailFormatter._esc(daily_brief)}</div>
         </div>
 """
 
@@ -233,24 +263,27 @@ class EmailFormatter:
                 <span class="section-label-text">{cfg['emoji']} {cfg['label']}</span>
             </div>
 """
-            for story in stories:
+            for idx, story in enumerate(stories):
                 facts, why = EmailFormatter._split_summary(story['summary'])
+                esc = EmailFormatter._esc
+                url = esc(story['url'])
+                title_class = "story-title-lead" if idx == 0 else "story-title"
 
                 why_block = ""
                 if why:
                     why_block = f"""
                 <div class="why-it-matters">
-                    <span class="why-label">Why it matters:</span> {why}
+                    <span class="why-label">Why it matters:</span> {esc(why)}
                 </div>"""
 
                 html += f"""
             <div class="story">
-                <div class="story-source">{story['source']}</div>
-                <div class="story-title">
-                    <a href="{story['url']}" target="_blank">{story['title']}</a>
+                <div class="story-source">{esc(story['source'])}</div>
+                <div class="{title_class}">
+                    <a href="{url}" target="_blank">{esc(story['title'])}</a>
                 </div>
-                <div class="story-summary">{facts}</div>{why_block}
-                <a class="read-more" href="{story['url']}" target="_blank">Read more &rarr;</a>
+                <div class="story-summary">{esc(facts)}</div>{why_block}
+                <a class="read-more" href="{url}" target="_blank">Read more &rarr;</a>
             </div>"""
 
             html += "\n        </div>\n"
@@ -263,13 +296,23 @@ class EmailFormatter:
 </body>
 </html>"""
 
+        # Inline the CSS so clients that strip <style> blocks (Outlook,
+        # some mobile apps) still render the layout.
+        try:
+            html = transform(html, keep_style_tags=True, disable_validation=True)
+        except Exception as e:
+            print(f"Warning: CSS inlining failed, sending with <style> block only: {e}")
+
         return html
 
     @staticmethod
-    def format_plain_text(summarized: Dict[str, List[Dict]], category_config: dict) -> str:
+    def format_plain_text(summarized: Dict[str, List[Dict]], category_config: dict, daily_brief: str = "") -> str:
         today = datetime.now().strftime("%B %d, %Y")
         text = f"THE BRIEF -- YOUR DAILY DIGEST\n{today}\n"
         text += "=" * 60 + "\n\n"
+
+        if daily_brief:
+            text += f"TODAY AT A GLANCE\n{daily_brief}\n\n"
 
         for cat, stories in summarized.items():
             if not stories:

@@ -15,6 +15,9 @@ RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
 # News Settings — total stories across all categories (2 per category default)
 NUM_STORIES = int(os.getenv('NUM_STORIES', 8))
 
+# Ignore stories older than this (feeds with no publish date are kept)
+MAX_STORY_AGE_HOURS = int(os.getenv('MAX_STORY_AGE_HOURS', 36))
+
 # Category display configuration
 CATEGORY_CONFIG = {
     'ai': {
@@ -72,12 +75,22 @@ NEWS_SOURCES = {
             'type': 'rss',
             'url': 'https://thenewstack.io/feed/',
         },
+        {
+            'name': 'TechCrunch',
+            'type': 'rss',
+            'url': 'https://techcrunch.com/feed/',
+        },
+        {
+            'name': 'The Verge',
+            'type': 'rss',
+            'url': 'https://www.theverge.com/rss/index.xml',
+        },
     ],
     'finance': [
         {
-            'name': 'Reuters Business',
+            'name': 'MarketWatch',
             'type': 'rss',
-            'url': 'https://feeds.reuters.com/reuters/businessNews',
+            'url': 'https://feeds.content.dowjones.io/public/rss/mw_topstories',
         },
         {
             'name': 'Yahoo Finance',
@@ -97,11 +110,6 @@ NEWS_SOURCES = {
     ],
     'industry': [
         {
-            'name': 'Harvard Business Review',
-            'type': 'rss',
-            'url': 'https://feeds.hbr.org/harvardbusiness',
-        },
-        {
             'name': 'Fortune',
             'type': 'rss',
             'url': 'https://fortune.com/feed/',
@@ -110,6 +118,16 @@ NEWS_SOURCES = {
             'name': 'Fast Company',
             'type': 'rss',
             'url': 'https://www.fastcompany.com/latest/rss',
+        },
+        {
+            'name': 'Business Insider',
+            'type': 'rss',
+            'url': 'https://feeds.businessinsider.com/custom/all',
+        },
+        {
+            'name': 'Axios',
+            'type': 'rss',
+            'url': 'https://api.axios.com/feed/',
         },
     ],
     'marketing': [
@@ -124,9 +142,14 @@ NEWS_SOURCES = {
             'url': 'https://www.adweek.com/feed/',
         },
         {
-            'name': 'Marketing Week',
+            'name': 'Marketing Dive',
             'type': 'rss',
-            'url': 'https://www.marketingweek.com/feed/',
+            'url': 'https://www.marketingdive.com/feeds/news/',
+        },
+        {
+            'name': 'Social Media Today',
+            'type': 'rss',
+            'url': 'https://www.socialmediatoday.com/feeds/news/',
         },
     ],
 }
