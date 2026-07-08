@@ -37,4 +37,4 @@ Thumbs.db
 
 # Runtime artifacts
 newsagent.log
-seen_articles.json
+digest.html
