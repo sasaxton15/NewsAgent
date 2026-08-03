@@ -1,18 +1,4 @@
 {
-  "https://astral.sh/blog/ruff-v0.16.0": 1785075821,
-  "https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models": 1785075821,
-  "https://www.marketwatch.com/story/the-s-p-500s-earnings-growth-has-gone-bonkers-thanks-to-one-company-1c45b2ba?mod=mw_rss_topstories": 1785075821,
-  "https://www.marketwatch.com/story/the-treasury-market-is-sending-fed-chair-kevin-warsh-a-clear-warning-about-rates-d0026da9?mod=mw_rss_topstories": 1785075821,
-  "https://fortune.com/2026/07/26/network-school-balaji-srinivasan-malaysia-johor-israel-kazakhstan": 1785075821,
-  "https://fortune.com/2026/07/26/the-u-s-government-invested-27-billion-in-corporate-stakes-good-luck-finding-them": 1785075821,
-  "https://huggingface.co/moonshotai/Kimi-K3": 1785166597,
-  "https://huggingface.co/blog/nvidia/cosmos-h-dreams": 1785166597,
-  "https://www.marketwatch.com/story/the-ai-boom-shows-no-sign-of-slowing-and-the-u-s-economy-is-reaping-the-benefits-1728c4e5?mod=mw_rss_topstories": 1785166597,
-  "https://finance.yahoo.com/markets/article/apple-overtakes-nvidia-as-most-valuable-company-as-iphone-maker-avoids-capex-pitfalls-150316032.html": 1785166597,
-  "https://fortune.com/2026/07/27/new-york-city-women-are-making-up-to-30000-per-month-by-renting-out-their-closets-to-strangers": 1785166597,
-  "https://fortune.com/2026/07/26/georgia-power-utility-company-eminent-domain-grid-expansion-data-center": 1785166597,
-  "https://digiday.com/marketing/michaels-claims-google-powered-ai-assistant-doubles-conversion-rate-of-traditional-search": 1785166597,
-  "https://www.marketingdive.com/news/canada-goose-brings-natures-fringe-to-lifestyle-marketing-push/826134": 1785166597,
   "https://venturebeat.com/infrastructure/mcp-just-got-its-biggest-update-ever-heres-what-changes-for-ai-agents": 1785251500,
   "https://venturebeat.com/security/snowflake-launches-cortex-ai-gateway-to-control-ai-agents-and-prevent-runaway-enterprise-costs": 1785251500,
   "https://www.marketwatch.com/story/tech-fund-manager-says-the-market-is-misreading-second-quarter-earnings-9823461b?mod=mw_rss_topstories": 1785251500,
@@ -58,5 +44,13 @@
   "https://www.marketwatch.com/story/s-p-500-profit-growth-is-getting-even-wilder-as-amazon-makes-its-mark-5ddf2082?mod=mw_rss_topstories": 1785680599,
   "https://www.marketwatch.com/story/investors-are-rotating-into-financial-stocks-the-feds-next-move-could-determine-how-far-the-rally-runs-662c63df?mod=mw_rss_topstories": 1785680599,
   "https://fortune.com/2026/08/02/fifa-infantino-uefa-confidence-world-cup-investors": 1785680599,
-  "https://fortune.com/article/why-are-men-leaving-the-workforce-more-women-outnumber": 1785680599
+  "https://fortune.com/article/why-are-men-leaving-the-workforce-more-women-outnumber": 1785680599,
+  "https://thenewstack.io/deepseek-v4-flash-open-weights": 1785771428,
+  "https://www.therundown.ai/p/openai-astra-solves-10-long-standing-math-problems": 1785771428,
+  "https://www.marketwatch.com/story/joint-u-s-japanese-intervention-boosts-the-yen-but-will-it-be-enough-069451f5?mod=mw_rss_topstories": 1785771428,
+  "https://www.marketwatch.com/story/why-tech-stocks-are-likely-to-take-a-back-seat-for-the-rest-of-2026-according-to-jpmorgan-strategists-93e1c61f?mod=mw_rss_topstories": 1785771428,
+  "https://fortune.com/2026/08/03/openai-ceo-sam-altman-investment-advice-from-peter-thiel-paul-graham-built-billionaire-wealth-no-equity": 1785771428,
+  "https://fortune.com/2026/08/03/paramount-warner-ellisons-careful-what-you-bid-for": 1785771428,
+  "https://www.socialmediatoday.com/news/snapchat-will-no-longer-recommend-ai-slop/826782": 1785771428,
+  "https://www.adweek.com/brand-marketing/agentic-marketers-bayer-zoom-and-more-reveal-their-biggest-ai-wins": 1785771428
 }
