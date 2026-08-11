@@ -1,12 +1,4 @@
 {
-  "https://thenewstack.io/deepseek-v4-flash-open-weights": 1785771428,
-  "https://www.therundown.ai/p/openai-astra-solves-10-long-standing-math-problems": 1785771428,
-  "https://www.marketwatch.com/story/joint-u-s-japanese-intervention-boosts-the-yen-but-will-it-be-enough-069451f5?mod=mw_rss_topstories": 1785771428,
-  "https://www.marketwatch.com/story/why-tech-stocks-are-likely-to-take-a-back-seat-for-the-rest-of-2026-according-to-jpmorgan-strategists-93e1c61f?mod=mw_rss_topstories": 1785771428,
-  "https://fortune.com/2026/08/03/openai-ceo-sam-altman-investment-advice-from-peter-thiel-paul-graham-built-billionaire-wealth-no-equity": 1785771428,
-  "https://fortune.com/2026/08/03/paramount-warner-ellisons-careful-what-you-bid-for": 1785771428,
-  "https://www.socialmediatoday.com/news/snapchat-will-no-longer-recommend-ai-slop/826782": 1785771428,
-  "https://www.adweek.com/brand-marketing/agentic-marketers-bayer-zoom-and-more-reveal-their-biggest-ai-wins": 1785771428,
   "https://venturebeat.com/technology/qwen3-8-max-arrives-with-a-bold-claim-it-outperforms-gpt-5-6-sol-max-and-fable-5-on-agentic-computer-use": 1785856547,
   "https://huggingface.co/blog/LiquidAI/lfm2-5-2-6b": 1785856547,
   "https://www.marketwatch.com/story/caterpillar-is-killing-it-and-data-center-demand-is-driving-record-revenue-161b84d1?mod=mw_rss_topstories": 1785856547,
@@ -60,5 +52,13 @@
   "https://fortune.com/2026/08/10/exclusive-corma-raises-60-million-from-sequoia-for-ai-trained-to-defend-against-cyberattacks": 1786371136,
   "https://fortune.com/2026/08/10/boards-expanding-cfo-mandate-coo-duties": 1786371136,
   "https://www.adweek.com/commerce/how-ai-assistants-are-driving-sales-for-6-big-retailers": 1786371136,
-  "https://www.adweek.com/brand-marketing/cmos-are-the-least-proficient-at-ai-in-the-marketing-org-research-finds": 1786371136
+  "https://www.adweek.com/brand-marketing/cmos-are-the-least-proficient-at-ai-in-the-marketing-org-research-finds": 1786371136,
+  "https://venturebeat.com/infrastructure/mistral-ai-wants-to-build-1-gigawatt-of-european-compute-by-2030-and-lock-in-customers-now": 1786457531,
+  "https://venturebeat.com/orchestration/nvidias-switchyard-router-reshuffles-ai-models-mid-task-cutting-task-costs-to-a-third-in-its-own-tests": 1786457531,
+  "https://www.marketwatch.com/story/i-unexpectedly-came-into-some-money-is-putting-20-000-into-cds-a-smart-move-6c410458?mod=mw_rss_topstories": 1786457531,
+  "https://finance.yahoo.com/technology/article/supermicro-to-report-q4-results-in-latest-test-for-ai-infrastructure-company-210004983.html": 1786457531,
+  "https://fortune.com/2026/08/11/vietnam-aerospace-company-satellites-elon-musk-spacex": 1786457531,
+  "https://fortune.com/2026/08/11/data-center-stocks": 1786457531,
+  "https://digiday.com/media/perplexity-blocks-times-ads-served-to-ai-agents-calling-them-deceptive": 1786457531,
+  "https://digiday.com/podcasts/why-agentic-media-buying-is-becoming-a-client-by-client-configuration-job": 1786457531
 }
