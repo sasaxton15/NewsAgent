@@ -1,12 +1,4 @@
 {
-  "https://www.anthropic.com/claude-haiku-5-5": 1791400085,
-  "https://openai.com/index/gpt-6-for-everyone": 1791400085,
-  "https://www.marketwatch.com/story/spacex-reportedly-is-looking-to-raise-as-much-money-as-the-company-generates-in-revenue-to-buy-nvidia-chips-01ca6d82?mod=mw_rss_topstories": 1791400085,
-  "https://www.cnbc.com/2026/10/07/fed-officials-see-another-hike-coming-but-no-sign-as-to-when-minutes-show.html": 1791400085,
-  "https://fortune.com/2026/10/07/cio-intelligence-dropbox-cto": 1791400085,
-  "https://www.fastcompany.com/91608398/usa-today-palantir": 1791400085,
-  "https://digiday.com/media-buying/defensible-to-the-cfo-prime-day-catalyzes-amazon-video-and-dsp-spend-growth": 1791400085,
-  "https://www.adweek.com/commerce/walmart-lays-out-its-plan-to-take-over-tv-advertising": 1791400085,
   "https://therundownai.beehiiv.com/p/ai-s-next-frontier-is-the-human-cell": 1791486250,
   "https://thenewstack.io/claude-dashboards-data-motion": 1791486250,
   "https://www.cnbc.com/2026/10/08/open-ai-revenue-nvidia-oracle-coreweave.html": 1791486250,
@@ -60,5 +52,13 @@
   "https://fortune.com/2026/10/14/openai-arrest-engineer-alfozan-fbi-recording-device-ai-chatbot": 1791999662,
   "https://fortune.com/2026/10/14/taser-maker-axon-is-mandating-ai-use-to-speed-up-work-as-its-surveillance-tools-face-scrutiny": 1791999662,
   "https://digiday.com/sponsored/publishers-buyers-direct-supply-paths-ai": 1791999662,
-  "https://www.marketingdive.com/news/5-ways-marketers-can-make-a-lasting-impact-with-gen-alpha/832805": 1791999662
+  "https://www.marketingdive.com/news/5-ways-marketers-can-make-a-lasting-impact-with-gen-alpha/832805": 1791999662,
+  "https://huggingface.co/blog/meta-muse-spark-open": 1792085290,
+  "https://huggingface.co/blog/allenai/hiro-acev2": 1792085290,
+  "https://www.marketwatch.com/story/micron-nvidia-and-other-chip-stocks-face-renewed-pressure-as-ai-fears-swell-4e0dc989?mod=mw_rss_topstories": 1792085290,
+  "https://www.cnbc.com/2026/10/15/september-producer-price-index-retail-sales-data.html": 1792085290,
+  "https://fortune.com/article/reese-witherspoon-buys-back-hello-sunshine-how-she-built-a-900-million-company-from-a-problem-hollywood-wouldnt-fix": 1792085290,
+  "https://fortune.com/2026/10/15/broadcom-hock-tan-ai-investing-casino": 1792085290,
+  "https://digiday.com/marketing/brands-turn-to-content-series-and-jimi-hendrix-to-improve-ai-search-performance": 1792085290,
+  "https://digiday.com/media/inside-wirecutters-push-to-diversify-beyond-affiliate-revenue-as-ai-reshapes-discovery": 1792085290
 }
