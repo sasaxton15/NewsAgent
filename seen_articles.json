@@ -1,12 +1,4 @@
 {
-  "https://thenewstack.io/coding-agents-overstep-scope": 1792436033,
-  "https://thenewstack.io/deepseek-web-search-api": 1792436033,
-  "https://www.marketwatch.com/story/one-of-this-years-most-important-relationships-in-global-financial-markets-is-falling-apart-2cf58121?mod=mw_rss_topstories": 1792436033,
-  "https://www.cnbc.com/2026/10/19/anthropic-ipo-ai-trade.html": 1792436033,
-  "https://fortune.com/2026/10/19/work-botsitting-meetings-army-of-claudes-anthropic": 1792436033,
-  "https://fortune.com/2026/10/19/strategy-22-million-bitcoin-planned-share-buybacks": 1792436033,
-  "https://digiday.com/media/the-verge-switches-up-its-audience-team-to-prepare-for-google-zero": 1792436033,
-  "https://www.marketingdive.com/news/how-marketers-can-optimize-their-media-mix-as-confidence-takes-a-turn/833197": 1792436033,
   "https://github.com/deepseek-ai/DeepInfer": 1792517837,
   "https://huggingface.co/blog/allenai/fairstress": 1792517837,
   "https://www.cnbc.com/2026/10/20/salesforce-braze-acquisition-deal.html": 1792517837,
@@ -52,5 +44,13 @@
   "https://www.marketwatch.com/story/more-than-a-third-of-s-p-500-companies-are-about-to-report-earnings-as-market-confidence-cracks-03b7a8f1?mod=mw_rss_topstories": 1792947262,
   "https://www.cnbc.com/2026/10/25/audi-georgia-us-plant-tariffs-volkswagen.html": 1792947262,
   "https://fortune.com/2026/10/25/us-china-rival-ai-blocs-swing-countries-hedging": 1792947262,
-  "https://fortune.com/article/airbnb-ceo-brian-chesky-warns-two-types-of-people-wont-survive-the-ai-era-pure-people-managers-and-workers-who-resist-change": 1792947262
+  "https://fortune.com/article/airbnb-ceo-brian-chesky-warns-two-types-of-people-wont-survive-the-ai-era-pure-people-managers-and-workers-who-resist-change": 1792947262,
+  "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm": 1793040953,
+  "https://thenewstack.io/anthropic-s1-models-revenue": 1793040953,
+  "https://www.marketwatch.com/story/nvidia-amd-and-broadcom-could-buy-meta-shares-as-part-of-35-billion-stock-offering-d816fec2?mod=mw_rss_topstories": 1793040953,
+  "https://www.cnbc.com/2026/10/26/microsoft-msft-voluntary-buyouts.html": 1793040953,
+  "https://fortune.com/2026/10/26/anthropics-s1-ipo-reveals-the-inner-workings-of-its-fast-evolving-compute-strategy": 1793040953,
+  "https://fortune.com/2026/10/26/eqt-nations-leading-natural-gas-juggernaut-data-center-export-demand-surges": 1793040953,
+  "https://digiday.com/marketing/salesforces-5-7-billion-braze-deal-puts-marketers-at-an-ecosystem-crossroads": 1793040953,
+  "https://www.adweek.com/programmatic/pinterest-opens-its-inventory-to-programmatic-buyers-with-magnite-as-its-main-pipe": 1793040953
 }
