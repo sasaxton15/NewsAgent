@@ -1,12 +1,4 @@
 {
-  "https://thenewstack.io/claude-fable-5-2-vs-fable-5-1": 1794681347,
-  "https://thenewstack.io/ducklake-sql-lakehouse-metadata": 1794681347,
-  "https://www.cnbc.com/2026/11/14/nvidia-investors-jensen-huang-return-board-letter.html": 1794681347,
-  "https://www.cnbc.com/2026/11/14/faa-ground-stop-flights-resume-delays.html": 1794681347,
-  "https://fortune.com/2026/11/14/jensen-huang-nvidia-ai-5-7-trillion-downfall": 1794681347,
-  "https://fortune.com/2026/11/14/faa-ground-stop-telecom-router-cybersecurity-white-house-situation-room-national-security-apparatus-l3harris": 1794681347,
-  "https://www.marketingdive.com/news/twitch-debuts-shoppable-skippable-ads-as-twitchcon-feels-growing-pains/874614": 1794681347,
-  "https://digiday.com/sponsored/the-future-of-ctv-lies-in-standardization": 1794681347,
   "https://thenewstack.io/claude-fable-5-2-vs-opus-5-5": 1794769847,
   "https://thenewstack.io/duckdb-quack-database-protocol": 1794769847,
   "https://www.marketwatch.com/story/nvidia-is-gearing-up-for-one-of-wall-streets-most-anticipated-earnings-calls-in-years-91855b1e?mod=mw_rss_topstories": 1794769847,
@@ -52,5 +44,13 @@
   "https://fortune.com/2026/11/20/attention-spans-move-iran-world-forever-changed-conflict-escalating": 1795207910,
   "https://fortune.com/2026/11/20/anthropic-stock-teeters-close-to-ipo-price-in-second-day-of-trading": 1795207910,
   "https://digiday.com/marketing/future-of-marketing-briefing-consulting-firms-revive-their-marketing-ambitions-in-the-c-suite-the-holdcos-covet": 1795207910,
-  "https://digiday.com/marketing/anthropic-says-no-to-ads-but-wall-street-may-have-other-ideas": 1795207910
+  "https://digiday.com/marketing/anthropic-says-no-to-ads-but-wall-street-may-have-other-ideas": 1795207910,
+  "https://github.com/ShinMegamiBoson/lookatmyquant": 1795290814,
+  "https://leanprover-community.github.io/blog/posts/riemann-hypothesis": 1795290814,
+  "https://www.marketwatch.com/story/ive-been-a-stay-at-home-mom-im-50-and-have-a-chronic-illness-my-husband-lost-his-job-should-he-raid-his-401-k-63e59123?mod=mw_rss_topstories": 1795290814,
+  "https://www.marketwatch.com/story/buyers-are-out-for-blood-as-housing-market-finally-hits-rock-bottom-fa5093a6?mod=mw_rss_topstories": 1795290814,
+  "https://fortune.com/2026/11/21/fema-network-outages-extra-cash-emergency-supplies-cyberattacks": 1795290814,
+  "https://fortune.com/2026/11/21/meta-employees-muse-ai-agent-extreme-privacy-violation-encrypted-signal-messages": 1795290814,
+  "https://www.adweek.com/brand-marketing/the-media-rfp-is-quietly-becoming-obsolete-ft-bruce-williams": 1795290814,
+  "https://www.adweek.com/brand-marketing/the-art-science-and-theater-of-modern-marketing-ft-thomas-ranese": 1795290814
 }
